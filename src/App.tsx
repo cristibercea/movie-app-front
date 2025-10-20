@@ -1,7 +1,6 @@
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Home from './pages/Home';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -32,22 +31,27 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import React from "react";
+import MovieAdd from "./components/MovieAdd";
+import MovieEdit from "./components/MovieEdit";
+import MovieProvider from "./components/MovieProvider";
+import MovieList from "./components/MovieList";
 
 setupIonicReact();
 
 const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route exact path="/home">
-          <Home />
-        </Route>
-        <Route exact path="/">
-          <Redirect to="/home" />
-        </Route>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
+    <IonApp>
+        <MovieProvider>
+            <IonReactRouter>
+                <IonRouterOutlet>
+                    <Route path="/movies" component={MovieList} exact={true}/>
+                    <Route path="/movie" component={MovieAdd} exact={true}/>
+                    <Route path="/movie/:id" component={MovieEdit} exact={true}/>
+                    <Route exact path="/" render={() => <Redirect to="/movies"/>}/>
+                </IonRouterOutlet>
+            </IonReactRouter>
+        </MovieProvider>
+    </IonApp>
 );
 
 export default App;
