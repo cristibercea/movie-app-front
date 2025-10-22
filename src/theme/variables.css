@@ -8,18 +8,18 @@ body {
 }
 
 .header-toolbar {
-    font-size: 1.5em;
+    font-size: 2em;
     font-weight: bold;
     text-align: center;
 }
 
 .card-title {
-    font-size: 1.2em;
+    font-size: 1.5em;
     color: aliceblue;
 }
 
 .paragraph {
-    font-size: 0.5em;
+    font-size: 0.6em;
     color: #c1c1c1;
 }
 
@@ -28,14 +28,6 @@ body {
     margin: 5px;
     padding: 5px;
     border-radius: 10px;
-}
-
-.green {
-    color: #3c753c;
-}
-
-.red {
-    color: #a94442;
 }
 
 .flex {

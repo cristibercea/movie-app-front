@@ -12,13 +12,9 @@ import {
 } from '@ionic/react';
 import { getLogger } from '../core';
 import { MovieContext } from './MovieProvider';
-import { RouteComponentProps } from 'react-router';
+import {MovieEditProps} from "./Movie";
 
 const log = getLogger('MovieAdd');
-
-type MovieEditProps = RouteComponentProps<{
-    id?: string;
-}>
 
 const MovieAdd: React.FC<MovieEditProps> = ({history}) => {
     const { saving, savingError, saveMovie } = useContext(MovieContext);
@@ -26,25 +22,28 @@ const MovieAdd: React.FC<MovieEditProps> = ({history}) => {
     const [description, setDesc] = useState('');
     const [date, setDate] = useState(new Date());
     const [seen, setSeen] = useState(false);
+    const [rating, setRating] = useState(0);
 
     const clearSelection = useCallback(()=>{
         setName('');
         setDesc('');
         setDate(new Date());
         setSeen(false);
+        setRating(0);
         history.goBack()
     }, [history])
     
     const handleSave = useCallback(() => {
-        if (name != '' && description != '' && date != null) {
+        if (name != '' && description != '' && date != null && seen != null && rating != null) {
             if (saveMovie) saveMovie({
                 name: name,
                 description: description,
                 date: date.toISOString(),
                 seen: seen,
+                rating: rating
             }).then(clearSelection);
         }
-    }, [name, description, date, seen, saveMovie, clearSelection]);
+    }, [name, description, date, seen, rating, saveMovie, clearSelection]);
 
     const handleCancel = useCallback(clearSelection, [clearSelection])
     
@@ -52,7 +51,7 @@ const MovieAdd: React.FC<MovieEditProps> = ({history}) => {
     return (
         <IonPage>
             <IonHeader>
-                <IonToolbar color="primary" className={'ion-text-center'}>
+                <IonToolbar color="primary" className="ion-text-center">
                     <IonTitle>Add a Movie</IonTitle>
                 </IonToolbar>
             </IonHeader>
@@ -84,6 +83,21 @@ const MovieAdd: React.FC<MovieEditProps> = ({history}) => {
                         placeholder="Enter movie description"
                     />
 
+                    <IonInput
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="10"
+                        label="Rate the movie (0–10)"
+                        labelPlacement="stacked"
+                        value={rating?.toString() || '0'}
+                        onIonChange={(e) => {
+                            const value = parseFloat(e.detail.value || '0');
+                            if (!isNaN(value)) setRating(value);
+                        }}
+                        placeholder="e.g. 8.5"
+                    />
+
                     <div>
                         <IonLabel>Release date</IonLabel>
                         <IonDatetime
@@ -112,12 +126,11 @@ const MovieAdd: React.FC<MovieEditProps> = ({history}) => {
                     </IonCheckbox>
 
                     <IonButtons className="ion-margin-top ion-justify-content-end">
-                        <IonButton onClick={handleCancel} fill={"solid"} color="danger">
+                        <IonButton onClick={handleCancel} fill="solid" color="danger">
                             Cancel
                         </IonButton>
-                        &nbsp;
-                        &nbsp;
-                        <IonButton onClick={handleSave} fill={"solid"} color="success">
+                        &nbsp;&nbsp;
+                        <IonButton onClick={handleSave} fill="solid" color="success">
                             Save
                         </IonButton>
                     </IonButtons>

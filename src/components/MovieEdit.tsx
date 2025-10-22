@@ -12,14 +12,10 @@ import {
 } from '@ionic/react';
 import { getLogger } from '../core';
 import { MovieContext } from './MovieProvider';
-import { RouteComponentProps } from 'react-router';
 import {MovieProps} from "./MovieProps";
+import {MovieEditProps} from "./Movie";
 
 const log = getLogger('MovieEdit');
-
-type MovieEditProps = RouteComponentProps<{
-    id?: string;
-}>
 
 const MovieEdit: React.FC<MovieEditProps> = ({history, match}) => {
     const { movies, saving, savingError, saveMovie } = useContext(MovieContext);
@@ -28,26 +24,28 @@ const MovieEdit: React.FC<MovieEditProps> = ({history, match}) => {
     const [date, setDate] = useState(new Date());
     const [seen, setSeen] = useState(false);
     const [movie, setMovie] = useState<MovieProps>();
+    const [rating, setRating] = useState(0);
     useEffect(() => {
         log('useEffect');
         const routeId = match.params.id || '';
-        const movie = movies?.find(mv => mv.id.toString() === routeId);
+        const movie = movies?.find(mv => mv._id === routeId);
         if (movie) {
             setName(movie.name);
             setDesc(movie.description);
             setDate(new Date(movie.date));
             setSeen(movie.seen);
+            setRating(movie.rating);
             setMovie(movie);
         }
-    }, [match.params.id, movies, setMovie, setName, setDesc, setDate, setSeen]);
+    }, [match.params.id, movies, setMovie, setName, setDesc, setDate, setSeen, setRating]);
 
     const handleSave = useCallback(() => {
         if (name != '' && description != '' && date != null) {
             if (saveMovie) saveMovie(
-                { ...movie, name: name, description: description, date: date.toISOString(), seen: seen }
+                { ...movie, name: name, description: description, date: date.toISOString(), seen: seen, rating: rating }
             ).then(history.goBack);
         }
-    }, [movie, name, description, date, seen, saveMovie, history]);
+    }, [movie, name, description, date, seen, rating, saveMovie, history]);
 
     const handleCancel = useCallback(history.goBack, [history])
 
@@ -55,7 +53,7 @@ const MovieEdit: React.FC<MovieEditProps> = ({history, match}) => {
     return (
         <IonPage>
             <IonHeader>
-                <IonToolbar color="primary" className={'ion-text-center'}>
+                <IonToolbar color="primary" className="ion-text-center">
                     <IonTitle>Edit a Movie</IonTitle>
                 </IonToolbar>
             </IonHeader>
@@ -87,6 +85,21 @@ const MovieEdit: React.FC<MovieEditProps> = ({history, match}) => {
                         placeholder="Enter movie description"
                     />
 
+                    <IonInput
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="10"
+                        label="Rate the movie (0–10)"
+                        labelPlacement="stacked"
+                        value={rating?.toString() || '0'}
+                        onIonChange={(e) => {
+                            const value = parseFloat(e.detail.value || '0');
+                            if (!isNaN(value)) setRating(value);
+                        }}
+                        placeholder="e.g. 8.5"
+                    />
+
                     <div>
                         <IonLabel>Release date</IonLabel>
                         <IonDatetime
@@ -115,12 +128,11 @@ const MovieEdit: React.FC<MovieEditProps> = ({history, match}) => {
                     </IonCheckbox>
 
                     <IonButtons className="ion-margin-top ion-justify-content-end">
-                        <IonButton onClick={handleCancel} fill={"solid"} color="danger">
+                        <IonButton onClick={handleCancel} fill="solid" color="danger">
                             Cancel
                         </IonButton>
-                        &nbsp;
-                        &nbsp;
-                        <IonButton onClick={handleSave} fill={"solid"} color="success">
+                        &nbsp;&nbsp;
+                        <IonButton onClick={handleSave} fill="solid" color="success">
                             Save
                         </IonButton>
                     </IonButtons>

@@ -1,5 +1,5 @@
 import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import {IonApp, IonLoading, IonRouterOutlet, setupIonicReact} from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
 /* Core CSS required for Ionic components to work properly */
@@ -31,27 +31,52 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import React from "react";
+import React, {useContext} from "react";
 import MovieAdd from "./components/MovieAdd";
 import MovieEdit from "./components/MovieEdit";
 import MovieProvider from "./components/MovieProvider";
 import MovieList from "./components/MovieList";
+import {AuthContext, AuthProvider, Login, PrivateRoute} from "./auth";
 
 setupIonicReact();
 
 const App: React.FC = () => (
     <IonApp>
-        <MovieProvider>
-            <IonReactRouter>
-                <IonRouterOutlet>
-                    <Route path="/movies" component={MovieList} exact={true}/>
-                    <Route path="/movie" component={MovieAdd} exact={true}/>
-                    <Route path="/movie/:id" component={MovieEdit} exact={true}/>
-                    <Route exact path="/" render={() => <Redirect to="/movies"/>}/>
-                </IonRouterOutlet>
-            </IonReactRouter>
-        </MovieProvider>
+        <IonReactRouter>
+            <AuthProvider>
+                <AppRoutes />
+            </AuthProvider>
+        </IonReactRouter>
     </IonApp>
 );
+
+const AppRoutes: React.FC = () => {
+    const { isAuthenticated, isCheckingAuth } = useContext(AuthContext);
+
+    return (
+        <>
+            <IonLoading isOpen={isCheckingAuth} message="Checking session..." />
+            {!isCheckingAuth && (
+                <>
+                    {isAuthenticated ? (
+                        <IonRouterOutlet>
+                            <MovieProvider>
+                                <PrivateRoute path="/movies" component={MovieList} exact />
+                                <PrivateRoute path="/movie" component={MovieAdd} exact />
+                                <PrivateRoute path="/movie/:id" component={MovieEdit} exact />
+                            </MovieProvider>
+                            <Route exact path="/" render={() => <Redirect to="/movies" />} />
+                        </IonRouterOutlet>
+                    ) : (
+                        <IonRouterOutlet>
+                            <Route path="/login" component={Login} exact />
+                            <Redirect to="/login" />
+                        </IonRouterOutlet>
+                    )}
+                </>
+            )}
+        </>
+    );
+};
 
 export default App;

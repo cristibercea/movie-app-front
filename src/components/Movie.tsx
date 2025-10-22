@@ -2,18 +2,24 @@ import React, { memo } from 'react';
 import { getLogger } from '../core';
 import {MovieProps} from "./MovieProps";
 import '../theme/variables.css'
-import {IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonItem, IonLabel, IonText} from "@ionic/react";
+import {IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonItem, IonLabel} from "@ionic/react";
+import {RouteComponentProps} from "react-router";
+import MovieDescription from "./MovieDescription";
 
 const log = getLogger('Movie');
 
 interface MoviePropsExt extends MovieProps {
-    onEdit: (id?: string) => void;
+    onEdit: (_id?: string) => void;
 }
 
-const Movie: React.FC<MoviePropsExt> = ({ id, name, description, date, seen, onEdit }) => {
-    log(`render ${id}. ${name} - ${date}`);
+export type MovieEditProps = RouteComponentProps<{
+    id?: string;
+}>
+
+const Movie: React.FC<MoviePropsExt> = ({ _id, name, description, date, seen, rating, onEdit }) => {
+    log(`render ${_id}. ${name} - ${date}`);
     return (
-        <IonCard onClick={() => onEdit(id?.toString())}>
+        <IonCard onClick={() => onEdit(_id)}>
             <IonCardHeader>
                 <div
                     style={{
@@ -22,7 +28,7 @@ const Movie: React.FC<MoviePropsExt> = ({ id, name, description, date, seen, onE
                         alignItems: 'center',
                     }}
                 >
-                    <IonCardTitle className={"card-title"}>{name}</IonCardTitle>
+                    <IonCardTitle className="card-title">{name}</IonCardTitle>
                     <IonBadge color={seen ? 'success' : 'danger'}>
                         {seen ? 'Seen' : 'Not seen'}
                     </IonBadge>
@@ -30,18 +36,25 @@ const Movie: React.FC<MoviePropsExt> = ({ id, name, description, date, seen, onE
             </IonCardHeader>
 
             <IonCardContent>
-                <IonText>
-                    <p>{description}</p>
-                </IonText>
+                <MovieDescription description={description} />
 
-                <IonItem lines="none" style={{ marginTop: '10px' }}>
-                    <IonLabel className={"ion-text-end"} style={{"font-size": "0.8em"}}>
+                <IonItem lines="none">
+                    <IonLabel className="ion-text-end" style={{ fontSize: '0.9em' }}>
                         <strong>Date Premiered: {new Date(date).toLocaleDateString()}</strong>
                     </IonLabel>
                 </IonItem>
+
+                {rating && (
+                    <IonItem lines="none">
+                        <IonLabel className="ion-text-end" style={{ fontSize: '0.8em' }}>
+                            <strong>
+                                Your Rating: {Number(rating).toFixed(1)}/10 <span style={{ color: '#FFD700' }}>★</span>
+                            </strong>
+                        </IonLabel>
+                    </IonItem>
+                )}
             </IonCardContent>
         </IonCard>
-
     );
 };
 

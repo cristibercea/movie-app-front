@@ -1,7 +1,8 @@
 export interface MovieProps {
-    id?: bigint;
+    _id?: string;
     name: string;
     description: string;
     date: string;
-    seen: boolean
+    seen: boolean;
+    rating: number;
 }
